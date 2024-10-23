@@ -13,6 +13,7 @@ const connectDb = async () => {
         try {
             const connect = await mongoose.connect(connectionString);
             console.log("Database Connected: ", connect.connection.host, connect.connection.name);
+            console.log("Hello World")
 
             // Define a sample schema for testing
         const testSchema = new mongoose.Schema({
