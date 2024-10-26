@@ -1,6 +1,7 @@
 import express, { Express, Request, Response } from "express";
 import connectDb from "./config/dbConnection"; // Include .js extension
 import dotenv from 'dotenv';
+import organizationRoutes from './routes/organizationRoutes';
 
 dotenv.config(); // Load environment variables
 
@@ -12,6 +13,9 @@ const app: Express = express();
 
 // Middleware to parse JSON
 app.use(express.json());
+
+// Register the routes
+app.use('/api', organizationRoutes);
 
 // Define a test route
 app.get('/', (req: Request, res: Response) => {

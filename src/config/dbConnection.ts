@@ -13,28 +13,6 @@ const connectDb = async () => {
         try {
             const connect = await mongoose.connect(connectionString);
             console.log("Database Connected: ", connect.connection.host, connect.connection.name);
-            console.log("Hello World")
-
-            // Define a sample schema for testing
-        const testSchema = new mongoose.Schema({
-            name: String,
-            age: Number,
-            city: String
-        });
-
-        // Create a Model
-        const TestModel = mongoose.model("Test", testSchema);
-
-        // Insert a sample document
-        const sampleObject = new TestModel({
-            name: "John Doe",
-            age: 30,
-            city: "New York"
-        });
-
-        // Save the document to the database
-        const savedObject = await sampleObject.save();
-        console.log("Sample Object Inserted: ", savedObject);
 
         } catch (err) {
             console.error("Database connection error:", err);
