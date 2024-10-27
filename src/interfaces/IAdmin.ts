@@ -4,6 +4,5 @@ export interface IAdmin {
     emailId: string;
     contactNumber: string;
     password: string;
-    organizationId: string;
-  }
-  
+    organizationId?: string;
+}

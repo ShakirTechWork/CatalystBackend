@@ -1,5 +1,5 @@
 import express from 'express';
-import { createOrganizationWithAdmin } from "../controllers/organizationController";
+import { createOrganizationWithAdmin } from "../Controllers/OrganizationController";
 
 const organizationRoutes = express.Router();
 

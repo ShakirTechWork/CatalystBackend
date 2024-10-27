@@ -1,0 +1,5 @@
+export const CatalystConstants = {
+    RANDOM_ID_CHARACTERS: "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+    READABLE_ID_LENGTH: 10,
+    READABLE_ID: "readableId"
+};
