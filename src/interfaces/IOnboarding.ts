@@ -1,6 +1,6 @@
 import { IAdmin } from "./IAdmin";
-import { IOrganization } from "./IOrganization";
+import { IHub } from "./IHub";
 export interface IOnboarding {
-    organization: IOrganization;
+    hub: IHub;
     admin: IAdmin;
 }

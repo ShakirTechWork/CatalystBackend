@@ -5,8 +5,8 @@ export const errorHandler = (err: any, req: Request, res: Response, next: NextFu
 
     // Default to a 500 Internal Server Error if no status is provided
     const statusCode = err.statusCode || 500;
-    const userErrorMessage = err.userMessage || "Something went wrong, please try again later.";
-    const clientErrorMessage = err.message || "Internal server error.";
+    const userErrorMessage = err.userMessage || "Something went wrong!.";
+    const clientErrorMessage = err.message || "Internal server error!";
     const errorCode = err.errorCode || 'UNKNOWN_ERROR';
 
     // Send the error response

@@ -1,5 +1,5 @@
 enum CollectionType {
-    ORGANIZATION,
+    HUB,
     ADMIN,
     TEAM,
     SALESMEN,

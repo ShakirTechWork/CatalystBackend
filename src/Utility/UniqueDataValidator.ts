@@ -1,41 +1,17 @@
-import OrganizationModel from "../Models/OrganizationModel";
+import HubModel from "../Models/HubModel";
 import AdminModel from "../Models/AdminModel";
-import CollectionType from "../enums/CollectionType"
-import KeyType from "../enums/KeyType";
+import CollectionType from "../Enums/CollectionType"
+import KeyType from "../Enums/KeyType";
 
-export async function isUniqueData(collectionType: CollectionType, keyType: KeyType, value: string) {
-    /*if (collectionType == CollectionType.ORGANIZATION) {
-        switch (keyType) {
-            case KeyType.NAME: 
-                return await OrganizationModel.findOne({ name: value });
-    
-            case KeyType.EMAIL:
-                return await OrganizationModel.findOne({ emailId: value });
-                
-            default:
-                return null
-        }
-    } else if (collectionType == CollectionType.ADMIN) {
-        switch (keyType) {
-            case KeyType.NAME: 
-                return await AdminModel.findOne({ name: value });
-    
-            case KeyType.EMAIL:
-                return await AdminModel.findOne({ emailId: value });
-                
-            default:
-                return null
-        }
-    }*/
-    
+export async function isUniqueData(collectionType: CollectionType, keyType: KeyType, value: string) {    
     switch (collectionType) {
-        case CollectionType.ORGANIZATION: 
+        case CollectionType.HUB: 
             switch (keyType) {
                 case KeyType.NAME: 
-                    return await OrganizationModel.findOne({ name: value });
+                    return await HubModel.findOne({ name: value });
     
                 case KeyType.EMAIL:
-                    return await OrganizationModel.findOne({ emailId: value });
+                    return await HubModel.findOne({ emailId: value });
                 
                 default:
                     return null

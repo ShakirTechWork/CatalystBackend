@@ -1,7 +1,9 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document, Types } from 'mongoose';
 import { IAdmin } from '../Interfaces/IAdmin';
 
-interface IAdminDocument extends IAdmin, Document {}
+export interface IAdminDocument extends IAdmin, Document {
+    _id: Types.ObjectId;
+}
 
 const AdminSchema: Schema = new Schema({
     readableId: { type: String, required: true, unique: true },
@@ -9,7 +11,7 @@ const AdminSchema: Schema = new Schema({
     emailId: { type: String, required: true },
     contactNumber: { type: String, required: true },
     password: { type: String, required: true },
-    organizationId: { type: String, required: true }
+    hubId: { type: Schema.Types.ObjectId, ref: 'Hub' }
 }, { timestamps: true });
 
 const AdminModel = mongoose.model<IAdminDocument>('Admin', AdminSchema);

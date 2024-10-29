@@ -1,4 +1,4 @@
-enum CatalystErrorCodes {
+enum CatalystStatusCodes {
     // 1xx - Informational Errors
     USER_NOT_AUTHENTICATED = 1001,
     SESSION_EXPIRED = 1002,
@@ -21,4 +21,4 @@ enum CatalystErrorCodes {
     GATEWAY_TIMEOUT = 5004
 }
 
-export default CatalystErrorCodes;
+export default CatalystStatusCodes;

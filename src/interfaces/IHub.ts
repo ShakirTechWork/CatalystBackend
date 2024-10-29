@@ -1,4 +1,4 @@
-export interface IOrganization {
+export interface IHub {
     readableId?: string;
     name: string;
     industry: string;

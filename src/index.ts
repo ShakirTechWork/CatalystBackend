@@ -1,8 +1,9 @@
 import express, { Express, Request, Response } from "express";
-import connectDb from "./Config/dbConnection";
+import connectDb from "./Config/DbConnector";
 import dotenv from 'dotenv';
 import { errorHandler } from "./ErrorHandling/ErrorHandler";
-import organizationRoutes from './Routes/OrganizationRoutes';
+import hubRoutes from './Routes/HubRoutes';
+import adminRoutes from "./Routes/AdminRoutes";
 
 dotenv.config(); // Load environment variables
 
@@ -21,7 +22,9 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 // Register the routes
-app.use('/api', organizationRoutes);
+app.use('/api', hubRoutes);
+
+app.use('/api', adminRoutes);
 
 //error handling 
 app.use(errorHandler);

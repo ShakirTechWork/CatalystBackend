@@ -1,6 +1,6 @@
-import OrganizationModel from '../Models/OrganizationModel';
+import HubModel from '../Models/HubModel';
 import { CatalystConstants } from '../Constants/CatalystConstants';
-import CollectionType from '../enums/CollectionType';
+import CollectionType from '../Enums/CollectionType';
 import AdminModel from '../Models/AdminModel';
 
 export function generateReadableId(): string {
@@ -31,8 +31,8 @@ export async function createUniqueId(collectionType: CollectionType): Promise<st
 
 async function findCollectionByType(collectionType: CollectionType, uniqueId: string) {
     switch (collectionType) {
-        case CollectionType.ORGANIZATION: 
-            return await OrganizationModel.findOne({ readableId: uniqueId });
+        case CollectionType.HUB: 
+            return await HubModel.findOne({ readableId: uniqueId });
 
         case CollectionType.ADMIN:
             return await AdminModel.findOne({ readableId: uniqueId });
