@@ -4,8 +4,8 @@ export interface ITeam {
     readableId: string,
     name: string,
     colorCode: string,
-    hubId: string,
-    adminId: string,
-    teamLeaderId: string,
-    teamMemberIds: Types.ObjectId[]
+    hubMongoId: string,
+    adminMongoId: string,
+    teamLeaderMongoId: string,
+    teamMemberMongoIds: Types.ObjectId[]
 }

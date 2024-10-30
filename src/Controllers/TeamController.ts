@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import expressAsyncHandler from "express-async-handler";
-import { isValidMongoObjectId } from "../Utility/MongoDbObjectIdValidator";
+import { isValidMongoId } from "../Utility/MongoDbObjectIdValidator";
 import CatalystError from "../ErrorHandling/CatalystError";
 import CatalystStatusCodes from "../ErrorHandling/CatalystStatusCodes";
 import HttpStatusCodes from "../Enums/HttpStatusCodes";
@@ -10,8 +10,8 @@ import CollectionType from "../Enums/CollectionType";
 
 
 export const createTeam = expressAsyncHandler(async(req: Request, res: Response) => {
-    const {adminId, hubId, team} = req.body;
-    if (!isValidMongoObjectId(adminId)) {
+    const {adminMongoId, hubMongoId, team} = req.body;
+    if (!isValidMongoId(adminMongoId)) {
         throw new CatalystError(HttpStatusCodes.BAD_REQUEST, 
             CatalystStatusCodes.INVALID_INPUT, 
             undefined, 
@@ -19,7 +19,7 @@ export const createTeam = expressAsyncHandler(async(req: Request, res: Response)
           );
     }
 
-    if (!isValidMongoObjectId(hubId)) {
+    if (!isValidMongoId(hubMongoId)) {
         throw new CatalystError(HttpStatusCodes.BAD_REQUEST, 
             CatalystStatusCodes.INVALID_INPUT, 
             undefined, 
@@ -27,7 +27,7 @@ export const createTeam = expressAsyncHandler(async(req: Request, res: Response)
           );
     }
 
-    const userHasPrivilege = ifUserHasPrivilege(adminId, UserRoles.ADMIN, hubId, CollectionType.HUB)
+    const userHasPrivilege = ifUserHasPrivilege(adminMongoId, UserRoles.ADMIN, hubMongoId, CollectionType.HUB)
     if (!userHasPrivilege) {
         throw new CatalystError(HttpStatusCodes.UNAUTHORIZED, 
             CatalystStatusCodes.USER_NOT_AUTHENTICATED, 

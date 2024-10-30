@@ -10,10 +10,10 @@ const TeamSchema: Schema = new Schema (
         readableId: { type: String, required: true, unique: true },
         name: { type: String, required: true },
         colorCode: { type: String, required: true },
-        hubId: { type: Schema.Types.ObjectId, ref: 'Hub' },
-        adminId: { type: Schema.Types.ObjectId, ref: 'Admin' },
-        teamLeaderId: { type: String, required: true },
-        teamMemberIds: [{type: String, required: true}]
+        hubMongoId: { type: Schema.Types.ObjectId, ref: 'Hub' },
+        adminMongoId: { type: Schema.Types.ObjectId, ref: 'Admin' },
+        teamLeaderMongoId: { type: String, required: true },
+        teamMemberMongoIds: [{type: String, required: true}]
     },
     {
         timestamps: true

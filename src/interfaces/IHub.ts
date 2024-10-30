@@ -6,5 +6,5 @@ export interface IHub {
     emailId: string;
     websiteLink: string;
     address?: string;
-    adminId?: string;
+    adminMongoId?: string;
 }  

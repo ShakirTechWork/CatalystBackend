@@ -77,17 +77,18 @@ export const createHubWithAdmin = asyncHandler(async (req: Request<{}, {}, IOnbo
       emailId: admin.emailId,
       contactNumber: admin.contactNumber,
       password: admin.password,
-      hubId: savedHub._id,
+      hubMongoId: savedHub._id,
     });
     const savedAdmin = await newAdmin.save();
 
-    // Update the adminId in the saved hub with the newly created admin's ID
-    savedHub.adminId = (savedAdmin._id as Types.ObjectId).toString();
+    // Update the adminMongoId in the saved hub with the newly created admin's ID
+    savedHub.adminMongoId = (savedAdmin._id as Types.ObjectId).toString();
     await savedHub.save();
 
     // Respond with the saved hub and admin data
     res.status(HttpStatusCodes.CREATED).json({ hub: savedHub, admin: savedAdmin });
 });
+
 
 
 // Function to handle hub data update

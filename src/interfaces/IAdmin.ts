@@ -4,5 +4,5 @@ export interface IAdmin {
     emailId: string;
     contactNumber: string;
     password: string;
-    hubId?: string;
+    hubMongoId?: string;
 }

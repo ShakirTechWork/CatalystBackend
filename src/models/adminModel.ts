@@ -11,7 +11,7 @@ const AdminSchema: Schema = new Schema({
     emailId: { type: String, required: true },
     contactNumber: { type: String, required: true },
     password: { type: String, required: true },
-    hubId: { type: Schema.Types.ObjectId, ref: 'Hub' }
+    hubMongoId: { type: Schema.Types.ObjectId, ref: 'Hub' }
 }, { timestamps: true });
 
 const AdminModel = mongoose.model<IAdminDocument>('Admin', AdminSchema);

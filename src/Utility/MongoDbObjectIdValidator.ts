@@ -1,5 +1,5 @@
 import { Types } from "mongoose";
 
-export function isValidMongoObjectId(objectId: Types.ObjectId): Boolean {
-    return (objectId && Types.ObjectId.isValid(objectId))
+export function isValidMongoId(mongoId: Types.ObjectId): Boolean {
+    return (mongoId && Types.ObjectId.isValid(mongoId))
 } 

@@ -11,7 +11,7 @@ const HubSchema: Schema = new Schema({
   emailId: { type: String, required: true },
   websiteLink: { type: String, required: true },
   address: { type: String },
-  adminId: { type: Schema.Types.ObjectId, ref: 'Admin' },
+  adminMongoId: { type: Schema.Types.ObjectId, ref: 'Admin' },
 }, { timestamps: true });
 
 const HubModel = mongoose.model<IHubDocument>('Hub', HubSchema);
