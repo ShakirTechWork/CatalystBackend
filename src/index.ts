@@ -22,9 +22,9 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 // Register the routes
-app.use('/api', hubRoutes);
+app.use('/api/v1', hubRoutes);
 
-app.use('/api', adminRoutes);
+app.use('/api/v1', adminRoutes);
 
 //error handling 
 app.use(errorHandler);

@@ -198,3 +198,79 @@ export const getHub = asyncHandler(async (req: Request<{}, {}, { hubMongoId: str
   });
 
 });
+
+export const deleteHub = asyncHandler(async(req: Request<{},{},{
+  adminMongoId: string, adminReadableId: string,
+  adminPassword: string, hubMongoId: string, hubReadableId: string
+  }>, res: Response) => {
+  const { adminMongoId, adminReadableId, adminPassword, hubMongoId, hubReadableId } = req.body;
+console.log("ckjbcijvecfihev")
+  if (!adminMongoId || !adminReadableId || !adminPassword || !hubMongoId || !hubReadableId) {
+    throw new CatalystError(HttpStatusCodes.NOT_FOUND, 
+      CatalystStatusCodes.RESOURCE_NOT_FOUND, 
+        undefined, 
+        "Give all the details for deleting a hub and its related data."
+      );
+  }
+
+  const isValidHubMongoId = isValidMongoId(hubMongoId)
+  if (!isValidHubMongoId) {
+    throw new CatalystError(HttpStatusCodes.BAD_REQUEST, 
+      CatalystStatusCodes.INVALID_INPUT, 
+        undefined, 
+        "Hub Mongo Object ID is not valid."
+      );
+  }
+
+  const isValidAdminMongoId = isValidMongoId(adminMongoId)
+  if (!isValidAdminMongoId) {
+    throw new CatalystError(HttpStatusCodes.BAD_REQUEST, 
+      CatalystStatusCodes.INVALID_INPUT, 
+        undefined, 
+        "Admin Mongo Object ID is not valid."
+      );
+  }
+
+  const admin = await AdminModel.findOne({_id: adminMongoId, readableId: adminReadableId});
+  if (!admin) {
+    throw new CatalystError(
+      HttpStatusCodes.NOT_FOUND,
+      CatalystErrorCodes.RESOURCE_NOT_FOUND,
+      "Admin Details not found.",
+      "Admin details not found for the provided admin mongo and readable id."
+    )
+  }
+
+  if (admin.password !== adminPassword) {
+    throw new CatalystError(
+      HttpStatusCodes.UNAUTHORIZED,
+      CatalystErrorCodes.USER_NOT_AUTHENTICATED,
+      "Incorrect Admin Password.",
+      "Incorrect Admin Password."
+    )
+  }
+
+  // Attempt to find and delete the hub
+  const hub = await HubModel.findOneAndDelete({ _id: hubMongoId, readableId: hubReadableId, adminMongoId: adminMongoId });
+  if (!hub) {
+    throw new CatalystError(
+      HttpStatusCodes.NOT_FOUND,
+      CatalystErrorCodes.RESOURCE_NOT_FOUND,
+      "Hub not found or you do not have permission to delete this hub.",
+      "Either hub is not found or the admin doesn't have permission to delete the Hub."
+    )
+  }
+
+  const deleteAdmin = await AdminModel.findOneAndDelete({ _id: adminMongoId, readableId: adminReadableId });
+  if (!deleteAdmin) {
+    throw new CatalystError(
+      HttpStatusCodes.NOT_FOUND,
+      CatalystErrorCodes.RESOURCE_NOT_FOUND,
+      "Admin not found or you do not have permission to delete the Admin.",
+      "Either Admin is not found or the admin doesn't have permission to delete the account."
+    )
+  }
+
+  res.status(200).json({ message: 'Hub and all its related data deleted successfully.', hub });
+
+});
