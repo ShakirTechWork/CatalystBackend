@@ -2,7 +2,8 @@ import mongoose, { Schema, Document, Types } from 'mongoose';
 import { IAdmin } from '../Interfaces/IAdmin';
 
 export interface IAdminDocument extends IAdmin, Document {
-    _id: Types.ObjectId;
+    readableId: string;
+    hubMongoId: Types.ObjectId;
 }
 
 const AdminSchema: Schema = new Schema({

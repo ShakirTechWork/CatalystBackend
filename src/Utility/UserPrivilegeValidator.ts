@@ -108,7 +108,7 @@ if (!admin) {
      CatalystStatusCodes.RESOURCE_NOT_FOUND, 
      "Admin not found", "No Admin found.")
 }
-  return admin?._id.toString() === currentUserMongoId;
+  return admin?._id === currentUserMongoId;
 }
 
 export default ifUserHasPrivilege;

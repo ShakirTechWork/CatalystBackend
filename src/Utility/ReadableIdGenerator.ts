@@ -2,6 +2,7 @@ import HubModel from '../Models/HubModel';
 import { CatalystConstants } from '../Constants/CatalystConstants';
 import CollectionType from '../Enums/CollectionType';
 import AdminModel from '../Models/AdminModel';
+import TeamModel from '../Models/TeamModel';
 
 export function generateReadableId(): string {
     let result = '';
@@ -38,8 +39,7 @@ async function findCollectionByType(collectionType: CollectionType, uniqueId: st
             return await AdminModel.findOne({ readableId: uniqueId });
 
         case CollectionType.TEAM:
-            return null
-            // return await TeamModel.findOne({ readableId: uniqueId });
+            return await TeamModel.findOne({ readableId: uniqueId });
 
         case CollectionType.SALESMEN:
             return null

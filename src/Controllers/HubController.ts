@@ -1,6 +1,6 @@
 import { Types } from "mongoose";
 import { Request, Response } from "express";
-import HubModel, { IHubDocument} from '../Models/HubModel';
+import HubModel from "../Models/HubModel";
 import AdminModel from '../Models/AdminModel';
 import { IOnboarding } from "../Interfaces/IOnboarding";
 import { createUniqueId } from '../Utility/ReadableIdGenerator';
@@ -9,55 +9,20 @@ import CatalystErrorCodes from "../ErrorHandling/CatalystStatusCodes";
 import CatalystError from "../ErrorHandling/CatalystError"
 import HttpStatusCodes from "../Enums/HttpStatusCodes";
 import CollectionType from "../Enums/CollectionType";
-import { isUniqueData } from "../Utility/UniqueDataValidator"
-import KeyType from "../Enums/KeyType";
 import DbKeys from "../Enums/DbKeys"
+import { isValidMongoId } from "../Utility/MongoDbObjectIdValidator";
+import { UpdateHub } from "../Types.ts/UpdateHub";
+import CatalystStatusCodes from "../ErrorHandling/CatalystStatusCodes";
+import ifUserHasPrivilege from "../Utility/UserPrivilegeValidator";
+import UserRoles from "../Enums/UserRoles";
 
 export const createHubWithAdmin = asyncHandler(async (req: Request<{}, {}, IOnboarding>, res: Response) => {
   const { hub, admin } = req.body;
 
-    // Generate a unique readable ID for the hub
     const uniqueHubReadableId = await createUniqueId(CollectionType.HUB);
-
-    /*const sameHubNameExists = await isUniqueData(CollectionType.HUB, KeyType.NAME, hub.name)
-    if (sameHubNameExists) {
-      throw new CatalystError(HttpStatusCodes.BAD_REQUEST, 
-        CatalystErrorCodes.DUPLICATE_ENTRY, 
-        "The Hub name is already taken. Please give a unique hub name.", 
-        "Found same Hub name already."
-      );
-    }
-
-    const sameHubEmailIdExists = await isUniqueData(CollectionType.HUB, KeyType.EMAIL, hub.emailId)
-    if (sameHubEmailIdExists) {
-      throw new CatalystError(HttpStatusCodes.BAD_REQUEST,
-         CatalystErrorCodes.DUPLICATE_ENTRY,
-          "The Hub Email ID is already taken. Please give a unique Hub Email ID.", 
-          "Found same HUb Email ID already."
-        );
-    }*/
 
     const uniqueAdminReadableId = await createUniqueId(CollectionType.ADMIN);
 
-    /*const sameAdminNameExists = await isUniqueData(CollectionType.ADMIN, KeyType.NAME, admin.name)
-    if (sameAdminNameExists) {
-      throw new CatalystError(HttpStatusCodes.BAD_REQUEST, 
-        CatalystErrorCodes.DUPLICATE_ENTRY, 
-        "The Admin name is already taken. Please give a unique Admin name.", 
-        "Found same Admin name already."
-      );
-    }
-
-    const sameAdminEmailIdExists = await isUniqueData(CollectionType.ADMIN, KeyType.EMAIL, admin.emailId)
-    if (sameAdminEmailIdExists) {
-      throw new CatalystError(HttpStatusCodes.BAD_REQUEST,
-         CatalystErrorCodes.DUPLICATE_ENTRY,
-          "The Admin Email ID is already taken. Please give a unique Admin Email ID.", 
-          "Found same Admin Email ID already."
-        );
-    }*/
-
-    // Create and save the HUb with individual fields
     const newHub = new HubModel({
       readableId: uniqueHubReadableId,
       name: hub.name,
@@ -70,7 +35,6 @@ export const createHubWithAdmin = asyncHandler(async (req: Request<{}, {}, IOnbo
 
     const savedHub = await newHub.save();
 
-    // After saving the Hub, create and save the admin, linking it to the Hub's ID
     const newAdmin = new AdminModel({
       readableId: uniqueAdminReadableId,
       name: admin.name,
@@ -81,67 +45,156 @@ export const createHubWithAdmin = asyncHandler(async (req: Request<{}, {}, IOnbo
     });
     const savedAdmin = await newAdmin.save();
 
-    // Update the adminMongoId in the saved hub with the newly created admin's ID
-    savedHub.adminMongoId = (savedAdmin._id as Types.ObjectId).toString();
+    savedHub.adminMongoId = savedAdmin._id as Types.ObjectId
     await savedHub.save();
 
-    // Respond with the saved hub and admin data
-    res.status(HttpStatusCodes.CREATED).json({ hub: savedHub, admin: savedAdmin });
+    res.status(HttpStatusCodes.CREATED).json({
+      hub: {
+        mongoId: savedHub._id,
+        readableId: savedHub.readableId,
+        name: savedHub.name,
+        industry: savedHub.industry,
+        contactNumber: savedHub.contactNumber,
+        emailId: savedHub.emailId,
+        websiteLink: savedHub.websiteLink,
+        address: savedHub.address,
+        adminMongoId: savedHub.adminMongoId,
+      },
+      admin: {
+        mongoId: savedAdmin._id,
+        readableId: savedAdmin.readableId,
+        name: savedAdmin.name,
+        emailId: savedAdmin.emailId,
+        contactNumber: savedAdmin.contactNumber,
+        hubMongoId: savedAdmin.hubMongoId
+      }
+    });
 });
 
 
 
-// Function to handle hub data update
-export const updateHubData = asyncHandler(async (req: Request, res: Response) => {
-  const { current_user_id, id, hub } = req.body;
+// API endpoint to update a Hub
+export const updateHub = asyncHandler(async (req: Request<{}, {}, UpdateHub & { hubMongoId: string; adminMongoId: string }>, res: Response): Promise<void> => {
+  const { hubMongoId, adminMongoId, ...updateFields } = req.body;
 
-  if (!id || !Types.ObjectId.isValid(id)) {
-      throw new CatalystError(HttpStatusCodes.BAD_REQUEST, 
-        CatalystErrorCodes.INVALID_INPUT, 
+  if (!hubMongoId || !adminMongoId) {
+    throw new CatalystError(HttpStatusCodes.NOT_FOUND, 
+      CatalystStatusCodes.RESOURCE_NOT_FOUND, 
         undefined, 
-        "Hub ID is not valid."
+        "Both hubMongoId and adminMongoId are required."
       );
   }
 
-  // Convert to ObjectId to avoid type inconsistencies
-  // Ensure id is passed as a string and directly create the ObjectId
-  const objectId = new Types.ObjectId(String(id));
-
-  const validFields: (keyof IHubDocument)[] = [
-    DbKeys.NAME, DbKeys.INDUSTRY, DbKeys.CONTACT_NUMBER, DbKeys.EMAIL_ID, DbKeys.WEBSITE_LINK, DbKeys.ADDRESS
-];
-
-  const updateData: Partial<IHubDocument> = {};
-  for (const field of validFields) {
-      if (hub[field] !== undefined) {
-          updateData[field] = hub[field];
-      }
+  const isValidHubMongoId = isValidMongoId(hubMongoId)
+  if (!isValidHubMongoId) {
+    throw new CatalystError(HttpStatusCodes.BAD_REQUEST, 
+      CatalystStatusCodes.INVALID_INPUT, 
+        undefined, 
+        "Hub Mongo Object ID is not valid."
+      );
   }
 
-  // First check if document exists
-  const hubToUpdate = await HubModel.findById(objectId);
-
-  if (!hubToUpdate) {
-      throw new CatalystError(HttpStatusCodes.NOT_FOUND, 
-        CatalystErrorCodes.RESOURCE_NOT_FOUND, 
+  const isValidAdminMongoId = isValidMongoId(adminMongoId)
+  if (!isValidAdminMongoId) {
+    throw new CatalystError(HttpStatusCodes.BAD_REQUEST, 
+      CatalystStatusCodes.INVALID_INPUT, 
         undefined, 
+        "Admin Mongo Object ID is not valid."
+      );
+  }
+
+  const doAdminHasUpdateHubPermission = ifUserHasPrivilege(adminMongoId, UserRoles.ADMIN, hubMongoId, CollectionType.HUB)
+  if (!doAdminHasUpdateHubPermission) {
+    throw new CatalystError(HttpStatusCodes.BAD_REQUEST, 
+      CatalystStatusCodes.INVALID_INPUT, 
+        "You don't have permission to update this hub details.", 
+        "Admin does not have permission to update this hub."
+      );
+  }
+
+  // Ensure the provided hub exists and matches the admin ID
+  const hub = await HubModel.findOne({ _id: hubMongoId, adminMongoId: adminMongoId });
+  if (!hub) {
+    throw new CatalystError(HttpStatusCodes.NOT_FOUND, 
+      CatalystStatusCodes.RESOURCE_NOT_FOUND, 
+        "Hub not found.", 
         "Hub not found."
       );
   }
 
+  // Update the hub with the provided fields
   const updatedHub = await HubModel.findByIdAndUpdate(
-      objectId,
-      { $set: updateData },
-      { new: true, runValidators: true }
+    hubMongoId,
+    { $set: updateFields },
+    { new: true, runValidators: true }
   );
 
   if (!updatedHub) {
-      throw new CatalystError(HttpStatusCodes.NOT_FOUND, 
-        CatalystErrorCodes.RESOURCE_NOT_FOUND, 
-        undefined, 
-        "Hub not found after updating."
+    throw new CatalystError(HttpStatusCodes.NOT_FOUND, 
+      CatalystStatusCodes.RESOURCE_NOT_FOUND, 
+        "Hub not found.", 
+        "Hub not found."
       );
   }
 
-  res.status(HttpStatusCodes.OK).json({ hub: updatedHub });
+  res.status(HttpStatusCodes.OK).json({
+    message: 'Hub updated successfully',
+    hub: updatedHub,
+  });
+});
+
+export const getHub = asyncHandler(async (req: Request<{}, {}, { hubMongoId: string; adminMongoId: string }>, res: Response): Promise<void> => {
+  const { hubMongoId, adminMongoId } = req.body;
+
+  if (!hubMongoId || !adminMongoId) {
+    throw new CatalystError(HttpStatusCodes.NOT_FOUND, 
+      CatalystStatusCodes.RESOURCE_NOT_FOUND, 
+        undefined, 
+        "Both hubMongoId and adminMongoId are required."
+      );
+  }
+
+  const isValidHubMongoId = isValidMongoId(hubMongoId)
+  if (!isValidHubMongoId) {
+    throw new CatalystError(HttpStatusCodes.BAD_REQUEST, 
+      CatalystStatusCodes.INVALID_INPUT, 
+        undefined, 
+        "Hub Mongo Object ID is not valid."
+      );
+  }
+
+  const isValidAdminMongoId = isValidMongoId(adminMongoId)
+  if (!isValidAdminMongoId) {
+    throw new CatalystError(HttpStatusCodes.BAD_REQUEST, 
+      CatalystStatusCodes.INVALID_INPUT, 
+        undefined, 
+        "Admin Mongo Object ID is not valid."
+      );
+  }
+
+  const doAdminHasGetHubPermission = ifUserHasPrivilege(adminMongoId, UserRoles.ADMIN, hubMongoId, CollectionType.HUB)
+  if (!doAdminHasGetHubPermission) {
+    throw new CatalystError(HttpStatusCodes.BAD_REQUEST, 
+      CatalystStatusCodes.INVALID_INPUT, 
+        "You don't have permission to update this hub details.", 
+        "Admin does not have permission to update this hub."
+      );
+  }
+
+  const hub = await HubModel.findOne({ _id: hubMongoId, adminMongoId: adminMongoId })
+    .select("-_id name industry contactNumber emailId websiteLink address") // Use generated select fields
+    .exec();
+
+  if (!hub) {
+    throw new CatalystError(HttpStatusCodes.NOT_FOUND, 
+      CatalystStatusCodes.RESOURCE_NOT_FOUND, 
+        "Hub not found.", 
+        "Hub not found."
+      );
+  }
+
+  res.status(HttpStatusCodes.OK).json({
+    hub
+  });
+
 });

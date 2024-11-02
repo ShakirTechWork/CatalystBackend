@@ -1,10 +1,12 @@
+import { Types } from "mongoose";
+
 export interface IHub {
-    readableId?: string;
+    readableId: string;
     name: string;
     industry: string;
     contactNumber: string;
     emailId: string;
     websiteLink: string;
-    address?: string;
-    adminMongoId?: string;
-}  
+    address: string;
+    adminMongoId: string | Types.ObjectId;
+}

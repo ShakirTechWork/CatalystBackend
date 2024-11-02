@@ -10,9 +10,9 @@ import { isValidMongoId } from "../Utility/MongoDbObjectIdValidator";
 
 // Function to handle admin data update
 export const updateAdminData = asyncHandler(async (req: Request, res: Response) => {
-    const { currentUserMongoId, admin } = req.body;
+    const { adminMongoId, admin } = req.body;
 
-    if (!isValidMongoId(currentUserMongoId)) {
+    if (!isValidMongoId(adminMongoId)) {
         throw new CatalystError(HttpStatusCodes.BAD_REQUEST, 
           CatalystStatusCodes.INVALID_INPUT, 
             undefined, 
@@ -22,7 +22,7 @@ export const updateAdminData = asyncHandler(async (req: Request, res: Response) 
   
     // Convert to ObjectId to avoid type inconsistencies
     // Ensure id is passed as a string and directly create the ObjectId
-    const objectId = new Types.ObjectId(String(currentUserMongoId));
+    const objectId = new Types.ObjectId(String(adminMongoId));
     const validFields: (keyof IAdminDocument)[] = [
       DbKeys.NAME, DbKeys.CONTACT_NUMBER, DbKeys.EMAIL_ID
   ];

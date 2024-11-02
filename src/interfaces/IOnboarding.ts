@@ -1,6 +1,6 @@
-import { IAdmin } from "./IAdmin";
-import { IHub } from "./IHub";
+import { CreateAdmin } from "../Types.ts/CreateAdmin";
+import { CreateHub } from "../Types.ts/CreateHub";
 export interface IOnboarding {
-    hub: IHub;
-    admin: IAdmin;
-}
+    hub: CreateHub;
+    admin: CreateAdmin;
+  }
