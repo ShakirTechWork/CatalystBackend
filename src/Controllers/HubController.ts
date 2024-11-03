@@ -103,6 +103,16 @@ export const updateHub = asyncHandler(async (req: Request<{}, {}, UpdateHub & { 
       );
   }
 
+   // Verify updateFields has keys to update
+   if (Object.keys(updateFields).length === 0) {
+    throw new CatalystError(
+      HttpStatusCodes.BAD_REQUEST,
+      CatalystStatusCodes.INVALID_INPUT,
+      "No fields provided for update.",
+      "No fields to update."
+    );
+  }
+
   const doAdminHasUpdateHubPermission = ifUserHasPrivilege(adminMongoId, UserRoles.ADMIN, hubMongoId, CollectionType.HUB)
   if (!doAdminHasUpdateHubPermission) {
     throw new CatalystError(HttpStatusCodes.BAD_REQUEST, 

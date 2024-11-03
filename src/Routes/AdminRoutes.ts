@@ -1,8 +1,8 @@
 import express from "express";
-import { updateAdminData } from "../Controllers/AdminControllers";
+import { updateAdmin, updateAdminData } from "../Controllers/AdminControllers";
 
 const adminRoutes = express.Router();
 
-adminRoutes.put("/updateAdmin", updateAdminData)
+adminRoutes.put("/updateAdmin", updateAdmin)
 
 export default adminRoutes;
